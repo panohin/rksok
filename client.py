@@ -11,7 +11,7 @@ async def tcp_echo_client(message):
     print(f'Send: {message!r}')
     writer.write(message.encode())
 
-    data = await reader.readuntil("\r\n\r\n".encode(config.ENCODING))
+    data = await reader.read()
     print(f'Received: {data.decode()!r}')
 
     print('Close the connection')

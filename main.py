@@ -1,16 +1,23 @@
 import asyncio
 import config
+import funcs
 
 async def handle_echo(reader, writer):
-    data = await reader.readuntil("\r\n\r\n".encode(config.ENCODING))
-    message = data.decode()
+    data = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
+    
+    message_as_string = data.decode()
+    message = funcs.parse_raw_message(data.decode())
     addr = writer.get_extra_info('peername')
-
-    print(f"Received {message!r} from {addr!r}")
-
-    print(f"Send: {message!r}")
-    writer.write(data)
-    await writer.drain()
+    
+    print(f"Received {message_as_string!r} from {addr!r}")
+    
+    if funcs.check_message(message):
+        response_from_checkserver = await funcs.send_to_checkserver(message_as_string)
+        print(funcs.parse_raw_message(response_from_checkserver.decode())) 
+                       
+    else:
+        writer.write((config.not_understand_response + " " + config.PROTOCOL).encode())
+    
 
     print("Close the connection")
     writer.close()
