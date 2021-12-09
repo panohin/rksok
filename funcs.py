@@ -5,9 +5,10 @@ import config
 
 def check_message(message: dict):
     if message["request_verb"] not in config.command_verbs\
-        or message["protocol_name"] != config.PROTOCOL :\
-            return None
-    return True
+        or message["protocol_name"] != config.PROTOCOL \
+            or len(message['name']) > 30:\
+        return None
+    return message["request_verb"]
 
 async def send_to_checkserver(message):
     reader, writer = await asyncio.open_connection(
@@ -18,7 +19,7 @@ async def send_to_checkserver(message):
     await writer.drain()
     
     response_from_checkserver = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
-    print(f'Received from checkserver: {response_from_checkserver.decode()!r}')
+    
     writer.close()
     
     return response_from_checkserver

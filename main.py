@@ -10,11 +10,19 @@ async def handle_echo(reader, writer):
     addr = writer.get_extra_info('peername')
     
     print(f"Received {message_as_string!r} from {addr!r}")
-    
-    if funcs.check_message(message):
+
+    check_message = funcs.check_message(message)    
+    if check_message:  
         response_from_checkserver = await funcs.send_to_checkserver(message_as_string)
-        print(funcs.parse_raw_message(response_from_checkserver.decode())) 
-                       
+        parsed_checkserver_response = funcs.parse_raw_message(response_from_checkserver.decode()) 
+        check_checkserver_responce = funcs.check_message(parsed_checkserver_response)
+        if check_checkserver_responce:
+            # обращаемся к данным
+            writer.write(config.you_can.encode(config.ENCODING))
+        else:
+            # 
+            writer.write("Ошибка".encode(config.ENCODING))
+            
     else:
         writer.write((config.not_understand_response + " " + config.PROTOCOL).encode())
     
