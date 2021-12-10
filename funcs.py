@@ -1,5 +1,7 @@
 import asyncio
+import aiofiles
 import config
+
 
 
 
@@ -41,3 +43,18 @@ def parse_raw_message(message: str) -> dict:
     
     return parsed_message
     
+async def get_data(message: dict):
+    '''Get data from phonebook'''
+    async with aiofiles.open('phonebook', mode='r') as f:
+        contents = await f.read()
+    print(contents)
+
+async def insert_data(message: dict):
+    '''Add new data to phonebook'''
+    async with aiofiles.open('phonebook', mode='a+') as f:
+        await f.write(message['name'] + " " + message['data'] + "\n")
+
+async def delete_data(message: dict):
+    '''Delete data from phonebook'''
+    pass
+

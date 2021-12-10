@@ -2,6 +2,8 @@ import asyncio
 import config
 import funcs
 
+from config import Commands
+
 async def handle_echo(reader, writer):
     data = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
     
@@ -18,7 +20,11 @@ async def handle_echo(reader, writer):
         check_checkserver_responce = funcs.check_message(parsed_checkserver_response)
         if check_checkserver_responce:
             # обращаемся к данным
-            writer.write(config.you_can.encode(config.ENCODING))
+            #writer.write(config.you_can.encode(config.ENCODING))
+            if message['request_verb'] == Commands.insert: await funcs.insert_data(message)
+            if message['request_verb'] == Commands.get: await funcs.get_data(message)
+            if message['request_verb'] == Commands.delete: await funcs.delete_data(message)
+            
         else:
             # 
             writer.write("Ошибка".encode(config.ENCODING))
