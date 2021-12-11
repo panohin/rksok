@@ -22,7 +22,9 @@ async def handle_echo(reader, writer):
             # обращаемся к данным
             #writer.write(config.you_can.encode(config.ENCODING))
             if message['request_verb'] == Commands.insert: await funcs.insert_data(message)
-            if message['request_verb'] == Commands.get: await funcs.get_data(message)
+            if message['request_verb'] == Commands.get:
+                data = await funcs.get_data(message)
+                writer.write(data.encode(config.ENCODING))
             if message['request_verb'] == Commands.delete: await funcs.delete_data(message)
             
         else:

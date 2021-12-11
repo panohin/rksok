@@ -5,7 +5,11 @@ import config
 
 
 
-def check_message(message: dict):
+
+def check_message(message: dict) -> str:
+    '''Check parsed message (dict) on accordance by request_verb,
+        protocol_name and lenght of name.
+        Returns request_verb (str).'''
     if message["request_verb"] not in config.command_verbs\
         or message["protocol_name"] != config.PROTOCOL \
             or len(message['name']) > 30:\
@@ -42,17 +46,27 @@ def parse_raw_message(message: str) -> dict:
     }
     
     return parsed_message
-    
-async def get_data(message: dict):
-    '''Get data from phonebook'''
-    async with aiofiles.open('phonebook', mode='r') as f:
-        contents = await f.read()
-    print(contents)
 
-async def insert_data(message: dict):
+async def file_processing(message: dict, mode: string) -> str:
+    '''Get data from phonebook'''
+    async with aiofiles.open(config.file_name, mode='r') as f:
+        contents = await f.read()
+        contents = contents.split("||")
+        for elem in contents:
+            try:
+                print(f"{elem=}, {message['name']=}")
+                name, data = elem.split("|")[0], elem.split("|")[1]
+                if name == message['name']:
+                    return data
+            except IndexError:
+                pass
+        return config.NO_DATA
+        
+async def insert_data(message: dict) -> None:
     '''Add new data to phonebook'''
-    async with aiofiles.open('phonebook', mode='a+') as f:
-        await f.write(message['name'] + " " + message['data'] + "\n")
+    async with aiofiles.open(config.file_name, mode='a') as f:
+        data = message['name'] + "|" + message['data'] + "||"
+        await f.write(data)
 
 async def delete_data(message: dict):
     '''Delete data from phonebook'''
