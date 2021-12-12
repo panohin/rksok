@@ -1,4 +1,5 @@
 import asyncio
+from os import write
 import config
 import funcs
 
@@ -21,12 +22,18 @@ async def handle_echo(reader, writer):
         if check_checkserver_responce:
             # обращаемся к данным
             #writer.write(config.you_can.encode(config.ENCODING))
-            if message['request_verb'] == Commands.insert: await funcs.insert_data(message)
-            if message['request_verb'] == Commands.get:
-                data = await funcs.get_data(message)
-                writer.write(data.encode(config.ENCODING))
-            if message['request_verb'] == Commands.delete: await funcs.delete_data(message)
-            
+            try:
+                if message['request_verb'] == Commands.insert:
+                    await funcs.insert_data(message)
+                    writer.write(f"{message['name']} ADDED SUCCESFULLY".encode(config.ENCODING))
+                if message['request_verb'] == Commands.get:
+                    data = await funcs.get_data(message)
+                    writer.write(data.encode(config.ENCODING))
+                if message['request_verb'] == Commands.delete:
+                    await funcs.delete_data(message)
+                    writer.write(f"{message['name']} DELETE SUCCESFULLY".encode(config.ENCODING))
+            except Exception as e:
+                    print(e.message, e.args)         
         else:
             # 
             writer.write("Ошибка".encode(config.ENCODING))
@@ -34,7 +41,6 @@ async def handle_echo(reader, writer):
     else:
         writer.write((config.not_understand_response + " " + config.PROTOCOL).encode())
     
-
     print("Close the connection")
     writer.close()
 

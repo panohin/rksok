@@ -47,11 +47,11 @@ def parse_raw_message(message: str) -> dict:
     
     return parsed_message
 
-async def file_processing(message: dict, mode: string) -> str:
+async def get_data(message: dict) -> str:
     '''Get data from phonebook'''
     async with aiofiles.open(config.file_name, mode='r') as f:
         contents = await f.read()
-        contents = contents.split("||")
+        contents = contents.split("\n")
         for elem in contents:
             try:
                 print(f"{elem=}, {message['name']=}")
@@ -65,10 +65,22 @@ async def file_processing(message: dict, mode: string) -> str:
 async def insert_data(message: dict) -> None:
     '''Add new data to phonebook'''
     async with aiofiles.open(config.file_name, mode='a') as f:
-        data = message['name'] + "|" + message['data'] + "||"
-        await f.write(data)
+        data = message['name'] + "|" + message['data'] + "\n"
+        await f.writelines(data)
 
-async def delete_data(message: dict):
+async def delete_data(message: dict) -> None:
     '''Delete data from phonebook'''
-    pass
+    async with aiofiles.open(config.file_name, mode='r') as f:
+        contents = await f.read()
+        contents = contents.split("\n")
+    async with aiofiles.open(config.file_name, mode='w') as f:   
+        for elem in contents:
+            try:
+                name = elem.split("|")[0]
+                if name != message['name']:
+                    data = elem + "\n"
+                    await f.write(data)
+            except IndexError:
+                pass
+        
 
