@@ -14,6 +14,8 @@ def check_message(message: dict) -> str:
         or message["protocol_name"] != config.PROTOCOL \
             or len(message['name']) > 30:\
         return None
+    elif len(message['name']) < 1 and message["request_verb"] != config.you_can:
+        return None
     return message["request_verb"]
 
 async def send_to_checkserver(message):
@@ -54,9 +56,8 @@ async def get_data(message: dict) -> str:
         contents = contents.split("\n")
         for elem in contents:
             try:
-                print(f"{elem=}, {message['name']=}")
                 name, data = elem.split("|")[0], elem.split("|")[1]
-                if name == message['name']:
+                if name.lower() == message['name'].lower():
                     return data
             except IndexError:
                 pass
@@ -77,7 +78,7 @@ async def delete_data(message: dict) -> None:
         for elem in contents:
             try:
                 name = elem.split("|")[0]
-                if name != message['name']:
+                if name.lower() != message['name'].lower():
                     data = elem + "\n"
                     await f.write(data)
             except IndexError:

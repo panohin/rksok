@@ -5,38 +5,44 @@ import funcs
 
 from config import Commands
 
-async def handle_echo(reader, writer):
-    data = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
-    
-    message_as_string = data.decode()
-    message = funcs.parse_raw_message(data.decode())
-    addr = writer.get_extra_info('peername')
-    
-    print(f"Received {message_as_string!r} from {addr!r}")
+'''
+ПРОВЕРЬ ОТВЕТЫ, КОТОРЫЕ ПОЛУЧАЕТ ТЕСТОВЫЙ КЛИЕНТ
+ОН ИХ НЕ МОЖЕТ ПОНЯТЬ!
 
-    check_message = funcs.check_message(message)    
-    if check_message:  
+'''
+
+async def rksok_protocol(reader, writer):
+    data = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
+    message_as_string = data.decode()
+    message = funcs.parse_raw_message(message_as_string)
+    addr = writer.get_extra_info('peername')
+    print(f"Received {message_as_string!r} from {addr!r}")
+      
+    if funcs.check_message(message):  
         response_from_checkserver = await funcs.send_to_checkserver(message_as_string)
         parsed_checkserver_response = funcs.parse_raw_message(response_from_checkserver.decode()) 
-        check_checkserver_responce = funcs.check_message(parsed_checkserver_response)
-        if check_checkserver_responce:
-            # обращаемся к данным
-            #writer.write(config.you_can.encode(config.ENCODING))
+        
+        if parsed_checkserver_response['request_verb'] == config.you_can:
             try:
                 if message['request_verb'] == Commands.insert:
                     await funcs.insert_data(message)
-                    writer.write(f"{message['name']} ADDED SUCCESFULLY".encode(config.ENCODING))
+                    writer.write(f"{config.SUCCES} + ' ' + {config.PROTOCOL}".encode(config.ENCODING))
                 if message['request_verb'] == Commands.get:
                     data = await funcs.get_data(message)
-                    writer.write(data.encode(config.ENCODING))
+                    if data == config.NO_DATA:
+                        responce = f"{config.NO_DATA} + ' ' + {config.PROTOCOL}"
+                        writer.write(responce.encode(config.ENCODING))
+                    else:
+                        responce = f"{config.SUCCES} + ' ' + {config.PROTOCOL} + '\n' + {data}"
+                        writer.write(responce.encode(config.ENCODING))
                 if message['request_verb'] == Commands.delete:
                     await funcs.delete_data(message)
-                    writer.write(f"{message['name']} DELETE SUCCESFULLY".encode(config.ENCODING))
+                    writer.write(f"{config.SUCCES} + ' ' + {config.PROTOCOL}".encode(config.ENCODING))
             except Exception as e:
                     print(e.message, e.args)         
         else:
-            # 
-            writer.write("Ошибка".encode(config.ENCODING))
+           responce = f"{config.cannot} + ' ' + {config.PROTOCOL} + '\n' + {parsed_checkserver_response['data']}"
+           writer.write(responce.encode(config.ENCODING))
             
     else:
         writer.write((config.not_understand_response + " " + config.PROTOCOL).encode())
@@ -46,7 +52,7 @@ async def handle_echo(reader, writer):
 
 async def main():
     server = await asyncio.start_server(
-        handle_echo, config.HOST, config.PORT)
+        rksok_protocol, config.HOST, config.PORT)
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)
     print(f'Serving on {addrs}')

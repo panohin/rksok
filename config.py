@@ -17,6 +17,7 @@ may_i = "АМОЖНА?"
 you_can = "МОЖНА"
 cannot = "НИЛЬЗЯ"
 NO_DATA = "Нет данных"
+SUCCES = "НОРМАЛДЫКС"
 
 class Commands():
     get = "ОТДОВАЙ"
