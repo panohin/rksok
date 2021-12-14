@@ -1,0 +1,5 @@
+Package    Version
+---------- -------
+aiofiles   0.8.0
+pip        21.3.1
+setuptools 49.2.1
