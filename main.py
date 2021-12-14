@@ -1,16 +1,12 @@
 import asyncio
 from os import write
+from loguru import logger
 import config
 import funcs
-
 from config import Commands
 
-'''
-ПРОВЕРЬ ОТВЕТЫ, КОТОРЫЕ ПОЛУЧАЕТ ТЕСТОВЫЙ КЛИЕНТ
-ОН ИХ НЕ МОЖЕТ ПОНЯТЬ!
 
-'''
-
+logger.debug("Start the server")
 async def rksok_protocol(reader, writer):
     data = await reader.readuntil(config.SEPARATOR.encode(config.ENCODING))
     message_as_string = data.decode()

@@ -1,5 +1,6 @@
 Package    Version
 ---------- -------
 aiofiles   0.8.0
+loguru     0.5.3
 pip        21.3.1
 setuptools 49.2.1
