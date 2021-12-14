@@ -36,8 +36,12 @@ async def rksok_protocol(reader, writer):
                         responce = f"{config.SUCCES} + ' ' + {config.PROTOCOL} + '\n' + {data}"
                         writer.write(responce.encode(config.ENCODING))
                 if message['request_verb'] == Commands.delete:
-                    await funcs.delete_data(message)
-                    writer.write(f"{config.SUCCES} + ' ' + {config.PROTOCOL}".encode(config.ENCODING))
+                    result = await funcs.delete_data(message)
+                    if result == config.NO_DATA:
+                        responce = f"{config.NO_DATA} + ' ' + {config.PROTOCOL}"
+                        writer.write(responce.encode(config.ENCODING))
+                    else:
+                        writer.write(f"{config.SUCCES} + ' ' + {config.PROTOCOL}".encode(config.ENCODING))
             except Exception as e:
                     print(e.message, e.args)         
         else:

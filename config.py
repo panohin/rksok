@@ -16,7 +16,7 @@ not_understand_response = "НИПОНЯЛ"
 may_i = "АМОЖНА?"
 you_can = "МОЖНА"
 cannot = "НИЛЬЗЯ"
-NO_DATA = "Нет данных"
+NO_DATA = "НИНАШОЛ"
 SUCCES = "НОРМАЛДЫКС"
 
 class Commands():

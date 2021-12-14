@@ -71,17 +71,20 @@ async def insert_data(message: dict) -> None:
 
 async def delete_data(message: dict) -> None:
     '''Delete data from phonebook'''
+    
     async with aiofiles.open(config.file_name, mode='r') as f:
         contents = await f.read()
         contents = contents.split("\n")
-    async with aiofiles.open(config.file_name, mode='w') as f:   
-        for elem in contents:
-            try:
-                name = elem.split("|")[0]
-                if name.lower() != message['name'].lower():
-                    data = elem + "\n"
-                    await f.write(data)
-            except IndexError:
-                pass
-        
+        if message['name'] in contents:
+            async with aiofiles.open(config.file_name, mode='w') as f:   
+                for elem in contents:
+                    try:
+                        name = elem.split("|")[0]
+                        if name.lower() != message['name'].lower():
+                            data = elem + "\n"
+                            await f.write(data)
+                    except IndexError:
+                        pass
+        else:
+            return config.NO_DATA
 
