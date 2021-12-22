@@ -1,6 +1,6 @@
 # 
-HOST = "127.0.0.1"
-PORT = 53001
+HOST = ""
+PORT = 53011
 ENCODING = "UTF-8"
 
 CHECK_SERVER_HOST = "vragi-vezde.to.digital"
