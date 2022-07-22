@@ -1,4 +1,5 @@
 import socket
+import json
 
 import exceptions
 from config import *
@@ -7,9 +8,12 @@ from config import *
 contact_dict = {'Иван Хмурый' : "89012345678 — мобильный 02 — рабочий"}
 
 def parse_to_get_name(message:str) -> str:
-    first_string = message.split("РКСОК/1.0\r\n")[0]
-    name = ' '.join(first_string.split()[1:])
-    return name
+	'''
+	Returns contact name from request message
+	'''
+	first_string = message.split("РКСОК/1.0\r\n")[0]
+	name = ' '.join(first_string.split()[1:])
+	return name
 
 def get_response_from_checkserver(message) -> str:
     message_to_checkserver = may_i + ' ' + PROTOCOL + '\n' + message
@@ -23,10 +27,14 @@ def perform_request(conn, name, message):
     command = message.split()[0]
     if command == "ЗОПИШИ":
         number = ' '.join(message.split("РКСОК/1.0\r\n")[1].split())
-        contact_dict[name] = number
+        with open(file_name, 'a') as file:
+        	file.write(name + ' ' + number + '\n')
         response_text = SUCCESS + ' ' + PROTOCOL
     elif command == "ОТДОВАЙ":
         number = contact_dict.get(name)
+        with open(file_name, 'a') as file:
+        	if name in file.read():
+        		print('SERVER.PY LINE 37')
         if number:
             response_text = RKSOK_to_english["normal"] + "\r\n" + number
         else:
